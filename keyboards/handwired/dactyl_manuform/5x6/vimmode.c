@@ -240,11 +240,9 @@ bool handle_cmd(char last_char, char prev_char, int num) {
 
     case 'D':
     case 'C':
-      HOLD_CTRL;
       mod_type(SHIFT, KC_END);
-      UNHOLD_CTRL;
       tap_code(KC_DEL);
-      if (last_char == 'c')
+      if (last_char == 'C')
         go_insert_mode();
       return true;
 
