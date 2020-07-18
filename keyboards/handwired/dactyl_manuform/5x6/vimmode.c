@@ -143,7 +143,7 @@ bool handle_cmd(char last_char, char prev_char, int num) {
         case 'y':
           mod_type_num(SHIFT, direction, num);
           if (prev_char == 'y') {
-            mod_type(GUI, KC_C);
+            mod_type(CTRL, KC_C);
             tap_code(KC_LEFT);
             tap_code(KC_RIGHT);
           }
@@ -179,7 +179,7 @@ bool handle_cmd(char last_char, char prev_char, int num) {
 
           // yw, ye, copy
           if (prev_char == 'y') {
-            mod_type(GUI, KC_C);
+            mod_type(CTRL, KC_C);
             tap_code(KC_LEFT);
             tap_code(KC_RIGHT);
           } else {
@@ -191,7 +191,7 @@ bool handle_cmd(char last_char, char prev_char, int num) {
 
           // :w is save
           if (prev_char == ':' && last_char == 'w' && num == 1) {
-            mod_type(GUI, KC_S);
+            mod_type(CTRL, KC_S);
           }
           return true;
 
@@ -224,68 +224,68 @@ bool handle_cmd(char last_char, char prev_char, int num) {
       return true;
 
     case '/':
-      mod_type(GUI, KC_F);
+      mod_type(CTRL, KC_F);
       go_insert_mode();
       return true;
 
     case 'u':
-      mod_type(GUI, KC_Z);
+      mod_type(CTRL, KC_Z);
       return true;
 
     case 'o':
-      mod_type(GUI, KC_RIGHT);
+      tap_code(KC_END);
       tap_code(KC_ENT);
       go_insert_mode();
       return true;
 
     case 'D':
     case 'C':
-      HOLD_GUI;
-      mod_type(SHIFT, KC_RIGHT);
-      UNHOLD_GUI;
+      HOLD_CTRL;
+      mod_type(SHIFT, KC_END);
+      UNHOLD_CTRL;
       tap_code(KC_DEL);
       if (last_char == 'c')
         go_insert_mode();
       return true;
 
     case 'I':
-      mod_type(GUI, KC_LEFT);
+      tap_code(KC_HOME);
       go_insert_mode();
       return true;
 
     case 'A':
-      mod_type(GUI, KC_RIGHT);
+      tap_code(KC_END);
       go_insert_mode();
-      break;
+      return true;
 
     case 'O':
       tap_code(KC_UP);
-      mod_type(GUI, KC_RIGHT);
+      tap_code(KC_END);
       tap_code(KC_ENT);
       go_insert_mode();
       return true;
 
     case 'p':
-      mod_type(GUI, KC_V);
+      mod_type(CTRL, KC_V);
       return true;
 
     case 'n':
-      mod_type(GUI, KC_G);
+      tap_code(KC_F3);
       return true;
 
     // This is a special case. In vi(m) p either pastes a new line or at the cursor depending
     // on what's in the paste buffer. I can't do that. So p and \ (button right of p) acts
     // as these two cases
     case '\\':
-      mod_type(GUI, KC_RIGHT);
+      tap_code(KC_END);
       tap_code(KC_ENT);
-      mod_type(GUI, KC_V);
+      mod_type(CTRL, KC_V);
       return true;
 
     case 'q':
       // :q is save
       if (prev_char == ':' && num == 1) {
-        mod_type(GUI, KC_Q);
+        mod_type(ALT, KC_F4);
       }
       return true;
 
@@ -309,7 +309,7 @@ bool handle_cmd(char last_char, char prev_char, int num) {
     case 'd':
       switch (prev_char) {
         case 'd':
-          mod_type(GUI, KC_LEFT);
+          tap_code(KC_HOME);
           mod_type_num(SHIFT, KC_DOWN, num);
           tap_code(KC_DEL);
           return true;
@@ -326,16 +326,16 @@ bool handle_cmd(char last_char, char prev_char, int num) {
     case 'y':
       switch (prev_char) {
         case 'y':
-          mod_type(GUI, KC_LEFT);
+          tap_code(KC_HOME);
           mod_type_num(SHIFT, KC_DOWN, num);
-          mod_type(GUI, KC_C);
+          mod_type(CTRL, KC_C);
           tap_code(KC_RIGHT);
           tap_code(KC_LEFT);
           return true;
         default:
           if(visual_mode) {
             visual_mode = false;
-            mod_type(GUI, KC_C);
+            mod_type(CTRL, KC_C);
             tap_code(KC_LEFT);
             return true;
           }
@@ -363,7 +363,7 @@ bool handle_cmd(char last_char, char prev_char, int num) {
       if (currcmdsize != 1)
         return false;
       if(visual_mode) HOLD_SHIFT;
-      mod_type(GUI, KC_LEFT);
+      tap_code(KC_HOME);
       if(visual_mode) UNHOLD_SHIFT;
       return true;
 
@@ -372,11 +372,11 @@ bool handle_cmd(char last_char, char prev_char, int num) {
         case 'd':
         case 'c':
         case 'y':
-          HOLD_GUI;
+          HOLD_CTRL;
           mod_type(SHIFT, KC_RIGHT);
-          UNHOLD_GUI;
+          UNHOLD_CTRL;
           if (prev_char == 'y') {
-            mod_type(GUI, KC_C);
+            mod_type(CTRL, KC_C);
             tap_code(KC_LEFT);
             tap_code(KC_RIGHT);
             tap_code(KC_LEFT);
@@ -390,7 +390,7 @@ bool handle_cmd(char last_char, char prev_char, int num) {
 
         default:
           if(visual_mode) HOLD_SHIFT;
-          mod_type(GUI, KC_RIGHT);
+          tap_code(KC_END);
           if(visual_mode) UNHOLD_SHIFT;
           return true;
       }
@@ -399,20 +399,20 @@ bool handle_cmd(char last_char, char prev_char, int num) {
     case 'G':
       if(prev_char == 'd' || prev_char == 'x' || prev_char == 'X' || prev_char == 'c' || prev_char == 'y') {
         HOLD_SHIFT;
-        mod_type(GUI, KC_DOWN);
+        mod_type(CTRL, KC_END);
         UNHOLD_SHIFT;
         if (prev_char == 'c' || prev_char == 'd')
           tap_code(KC_DEL);
         if (prev_char == 'c')
           go_insert_mode();
         if (prev_char == 'y') {
-          mod_type(GUI, KC_C);
+          mod_type(CTRL, KC_C);
           tap_code(KC_LEFT);
           tap_code(KC_RIGHT);
         }
       } else {
         if(visual_mode) HOLD_SHIFT;
-        mod_type(GUI, KC_DOWN);
+        mod_type(CTRL, KC_END);
         if(visual_mode) UNHOLD_SHIFT;
       }
       return true;
@@ -422,20 +422,20 @@ bool handle_cmd(char last_char, char prev_char, int num) {
         char ch2 = get_2nd_prev_char();
         if(ch2 == 'd' || ch2 == 'x' || ch2 == 'X' || ch2 == 'c' || ch2 == 'y') {
           HOLD_SHIFT;
-          mod_type(GUI, KC_UP);
+          mod_type(CTRL, KC_HOME);
           UNHOLD_SHIFT;
           if (ch2 == 'c' || ch2 == 'd')
             tap_code(KC_DEL);
           if (ch2 == 'c')
             go_insert_mode();
           if (ch2 == 'y') {
-            mod_type(GUI, KC_C);
+            mod_type(CTRL, KC_C);
             tap_code(KC_RIGHT);
             tap_code(KC_LEFT);
           }
         } else {
           if(visual_mode) HOLD_SHIFT;
-          mod_type(GUI, KC_UP);
+          mod_type(CTRL, KC_HOME);
           if(visual_mode) UNHOLD_SHIFT;
         }
       }
@@ -566,9 +566,8 @@ bool handle_vim_mode(uint16_t keycode, keyrecord_t *record, uint8_t vim_layer_no
           register_code(newKey);
         } else {
           unregister_code(newKey);
-          if(keycode == KC_W) {
-            //mod_type(CTRL, KC_RIGHT);
-            //mod_type(CTRL, KC_LEFT);
+          if(keycode == KC_E) {
+            tap_code(KC_LEFT);
           }
           if(visual_mode)
             UNHOLD_SHIFT;
