@@ -9,11 +9,12 @@
 #define UNHOLD_ALT unregister_mods(MOD_BIT(KC_LALT))
 #define HOLD_GUI register_mods(MOD_BIT(KC_LGUI))
 #define UNHOLD_GUI unregister_mods(MOD_BIT(KC_LGUI))
-#define HOLD_CTRL register_mods(MOD_BIT(KC_LCTRL))
+#define HOLD_CTRL register_mods(MOD_BIT(KC_LCTL))
 #define UNHOLD_CTRL unregister_mods(MOD_BIT(KC_LCTRL))
 #define ALT KC_LALT
 #define GUI KC_LGUI
 #define SHIFT KC_LSFT
+#define CTRL KC_LCTRL
 
 #define CMDBUFFSIZE 16
 #define SAVEBUFFSIZE 16
@@ -164,7 +165,7 @@ bool handle_cmd(char last_char, char prev_char, int num) {
         case 'd':
         case 'c':
         case 'y':
-          HOLD_ALT;
+          HOLD_CTRL;
           HOLD_SHIFT;
           tap_code_num(KC_RIGHT, num);
           // e vs w, going one further and then back again works in both word and
@@ -173,7 +174,7 @@ bool handle_cmd(char last_char, char prev_char, int num) {
             tap_code(KC_RIGHT);
             tap_code(KC_LEFT);
           }
-          UNHOLD_ALT;
+          UNHOLD_CTRL;
           UNHOLD_SHIFT;
 
           // yw, ye, copy
@@ -197,10 +198,10 @@ bool handle_cmd(char last_char, char prev_char, int num) {
         // Just w or e
         default:
           if(visual_mode) HOLD_SHIFT;
-          mod_type_num(ALT, KC_RIGHT, num);
+          mod_type_num(CTRL, KC_RIGHT, num);
           if (last_char == 'w') {
-            mod_type(ALT, KC_RIGHT);
-            mod_type(ALT, KC_LEFT);
+            mod_type(CTRL, KC_RIGHT);
+            mod_type(CTRL, KC_LEFT);
           }
           if(visual_mode) UNHOLD_SHIFT;
           return true;
@@ -537,24 +538,24 @@ bool handle_vim_mode(uint16_t keycode, keyrecord_t *record, uint8_t vim_layer_no
           break;
         case KC_W:
           if(record->event.pressed)
-            HOLD_ALT;
+            HOLD_CTRL;
           else
-            UNHOLD_ALT;
+            UNHOLD_CTRL;
 
           newKey = KC_RIGHT;
           break;
         case KC_E:
           if(record->event.pressed)
-            HOLD_ALT;
+            HOLD_CTRL;
           else
-            UNHOLD_ALT;
+            UNHOLD_CTRL;
           newKey = KC_RIGHT;
           break;
         case KC_B:
           if(record->event.pressed)
-            HOLD_ALT;
+            HOLD_CTRL;
           else
-            UNHOLD_ALT;
+            UNHOLD_CTRL;
           newKey = KC_LEFT;
           break;
       }
@@ -566,8 +567,8 @@ bool handle_vim_mode(uint16_t keycode, keyrecord_t *record, uint8_t vim_layer_no
         } else {
           unregister_code(newKey);
           if(keycode == KC_W) {
-            mod_type(ALT, KC_RIGHT);
-            mod_type(ALT, KC_LEFT);
+            //mod_type(CTRL, KC_RIGHT);
+            //mod_type(CTRL, KC_LEFT);
           }
           if(visual_mode)
             UNHOLD_SHIFT;
