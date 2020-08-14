@@ -586,7 +586,7 @@ bool handle_vim_mode(uint16_t keycode, keyrecord_t *record, uint8_t vim_layer_no
     return false;
   }
 
-  if (!record->event.pressed)
+  if (!record->event.pressed && keycode != VIM_ESC)
     return currmode != INSERT_MODE && currmode != INSERT_SAVE_MODE;
 
   vim_layer = vim_layer_no;
