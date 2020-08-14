@@ -12,6 +12,7 @@ enum layers {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	static uint16_t my_hash_timer;
+	static bool in_tab = false; // does an ALT-TAB, for windows cycling, without an alt key
 
 	if(keycode == VIM_ESC){
 		if(record->event.pressed) {
@@ -30,9 +31,44 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	  	if (vim_handled)
 	    	return false;
 	}
-	
+
+
+	if (keycode != ALT_TAB && keycode != ALT_TAB_SFT && in_tab){
+	    // Exit alt tab before treating normally the keycode
+	    SEND_STRING(SS_UP(X_LALT));
+	    in_tab = false;
+	}
 
     switch (keycode) {
+    	case ALT_TAB:
+		    // Macro to handle lower-tab as alt-tab
+			if (record->event.pressed) {
+				if (!in_tab){
+					SEND_STRING(SS_DOWN(X_LALT) SS_TAP(X_TAB));
+					in_tab = true;
+				} else {
+					SEND_STRING(SS_TAP(X_TAB));
+					// Do not release Alt here, or it will be impossible to switch more than one window:
+					// alt-tab-tab will be interpreted as alt-tab, then tab
+				}
+			}
+		    return false;
+
+    	case ALT_TAB_SFT:
+		    // Macro to handle lower-tab as alt-tab
+			if (record->event.pressed) {
+				if (!in_tab){
+					SEND_STRING(SS_DOWN(X_LALT) SS_DOWN(X_LSFT) SS_TAP(X_TAB));
+					SEND_STRING(SS_UP(X_LSFT));
+					in_tab = true;
+				} else {
+					SEND_STRING(SS_DOWN(X_LSFT) SS_TAP(X_TAB));
+					SEND_STRING(SS_UP(X_LSFT));
+					// Do not release Alt here, or it will be impossible to switch more than one window:
+					// alt-tab-tab will be interpreted as alt-tab, then tab
+				}
+			}
+		    return false;
 
 	    case WINDOWLEFT:
 	        if (record->event.pressed) {
@@ -83,9 +119,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		_______, _______, 												_______, _______),
 	[_MEDIA] = LAYOUT_5x6(
 		KC_F12, KC_F1, KC_F2, KC_F3, KC_F4, KC_F5,			 							KC_F6, KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, 
-		KC_MPLY, KC_MUTE, XXXXXXX, KC_MS_U, XXXXXXX, XXXXXXX, 							KC_WH_D, XXXXXXX, XXXXXXX, KC_PSCR, KC_MUTE, KC_MPLY, 
+		KC_MPLY, KC_MUTE, XXXXXXX, KC_MS_U, XXXXXXX, XXXXXXX, 							KC_WH_D, LCTL(LSFT(KC_TAB)), LCTL(KC_TAB), KC_PSCR, KC_MUTE, KC_MPLY, 
 		KC_MNXT, KC_VOLU, KC_MS_L, KC_MS_D, KC_MS_R, XXXXXXX, 							XXXXXXX, KC_BTN1, KC_BTN2, XXXXXXX, KC_VOLU, KC_MNXT, 
-		KC_MPRV, KC_VOLD, WINDOWLEFT, WINDOWRIGHT, DESKTOPLEFT, DESKTOPRIGHT, 			KC_WH_U, XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLD, KC_MPRV, 
+		KC_MPRV, KC_VOLD, WINDOWLEFT, WINDOWRIGHT, DESKTOPLEFT, DESKTOPRIGHT, 			KC_WH_U, ALT_TAB, ALT_TAB_SFT, XXXXXXX, KC_VOLD, KC_MPRV, 
 		RGB_RMOD, RGB_MOD, 																_______, _______,
 		_______, _______, 																_______, _______, 
 		TG(_QWERTY), _______, 															_______, _______, 

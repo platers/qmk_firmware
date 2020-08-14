@@ -31,6 +31,8 @@ enum custom_keycodes {
     WINDOWRIGHT,
     DESKTOPLEFT,
     DESKTOPRIGHT,
+    ALT_TAB,
+    ALT_TAB_SFT,
 };
 
 bool handle_vim_mode(uint16_t keycode, keyrecord_t *record, uint8_t vim_layer_no);
