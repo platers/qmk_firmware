@@ -1,5 +1,4 @@
 #include QMK_KEYBOARD_H
-#include "vimmode.h"
 
 enum layers {
 	_COLEMAK,
@@ -10,6 +9,15 @@ enum layers {
 	_VIM
 };
 
+enum custom_keycodes {
+  VIM_ESC = SAFE_RANGE,
+    WINDOWLEFT,
+    WINDOWRIGHT,
+    DESKTOPLEFT,
+    DESKTOPRIGHT,
+    ALT_TAB,
+    ALT_TAB_SFT,
+};
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	static uint16_t my_hash_timer;
 	static bool in_tab = false; // does an ALT-TAB, for windows cycling, without an alt key
@@ -21,15 +29,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	    } else {
 	        unregister_code(KC_LCTL); // Change the key that was held here, too!
 	        if (timer_elapsed(my_hash_timer) < TAPPING_TERM) {
-	        	handle_vim_mode(keycode, record, _VIM); // Change the character(s) to be sent on tap here
+	        	//handle_vim_mode(keycode, record, _VIM); // Change the character(s) to be sent on tap here
     			return false;
 	        }
 	    }
 	} 
 	else {
-		bool vim_handled = handle_vim_mode(keycode, record, _VIM);
-	  	if (vim_handled)
-	    	return false;
+		//bool vim_handled = handle_vim_mode(keycode, record, _VIM);
 	}
 
 
