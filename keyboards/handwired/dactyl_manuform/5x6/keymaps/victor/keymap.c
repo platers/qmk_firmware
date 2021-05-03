@@ -2,46 +2,31 @@
 
 enum layers {
 	_COLEMAK,
+	_WINDOWS,
 	_SYMBOLS,
 	_MEDIA,
 	_QWERTY,
 	_NUMBERS,
-	_VIM
 };
 
 enum custom_keycodes {
-  VIM_ESC = SAFE_RANGE,
-    WINDOWLEFT,
+    WINDOWLEFT = SAFE_RANGE,
     WINDOWRIGHT,
     DESKTOPLEFT,
     DESKTOPRIGHT,
     ALT_TAB,
     ALT_TAB_SFT,
 };
+// Tap Dance declarations
+enum {
+	TD_CTRL_ALT,
+};
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-	static uint16_t my_hash_timer;
 	static bool in_tab = false; // does an ALT-TAB, for windows cycling, without an alt key
-
-	if(keycode == VIM_ESC){
-		if(record->event.pressed) {
-	        my_hash_timer = timer_read();
-	        register_code(KC_LCTL); // Change the key to be held here
-	    } else {
-	        unregister_code(KC_LCTL); // Change the key that was held here, too!
-	        if (timer_elapsed(my_hash_timer) < TAPPING_TERM) {
-	        	//handle_vim_mode(keycode, record, _VIM); // Change the character(s) to be sent on tap here
-    			return false;
-	        }
-	    }
-	} 
-	else {
-		//bool vim_handled = handle_vim_mode(keycode, record, _VIM);
-	}
-
 
 	if (keycode != ALT_TAB && keycode != ALT_TAB_SFT && in_tab){
 	    // Exit alt tab before treating normally the keycode
-	    SEND_STRING(SS_UP(X_LALT));
+	    SEND_STRING(SS_UP(X_LGUI));
 	    in_tab = false;
 	}
 
@@ -50,7 +35,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 		    // Macro to handle lower-tab as alt-tab
 			if (record->event.pressed) {
 				if (!in_tab){
-					SEND_STRING(SS_DOWN(X_LALT) SS_TAP(X_TAB));
+					SEND_STRING(SS_DOWN(X_LGUI) SS_TAP(X_TAB));
 					in_tab = true;
 				} else {
 					SEND_STRING(SS_TAP(X_TAB));
@@ -64,7 +49,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 		    // Macro to handle lower-tab as alt-tab
 			if (record->event.pressed) {
 				if (!in_tab){
-					SEND_STRING(SS_DOWN(X_LALT) SS_DOWN(X_LSFT) SS_TAP(X_TAB));
+					SEND_STRING(SS_DOWN(X_LGUI) SS_DOWN(X_LSFT) SS_TAP(X_TAB));
 					SEND_STRING(SS_UP(X_LSFT));
 					in_tab = true;
 				} else {
@@ -104,16 +89,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	return true;
 };
 
+// Tap Dance definitions
+qk_tap_dance_action_t tap_dance_actions[] = {
+    // Tap once for Escape, twice for Caps Lock
+    [TD_CTRL_ALT] = ACTION_TAP_DANCE_DOUBLE(KC_LGUI, KC_LCTRL),
+};
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[_COLEMAK] = LAYOUT_5x6(
 		KC_GRV, KC_1, KC_2, KC_3, KC_4, KC_5, 												KC_6, KC_7, KC_8, KC_9, KC_0, KC_EQL,
 		KC_TAB, KC_Q, KC_W, KC_F, KC_P, KC_G, 												KC_J, KC_L, KC_U, KC_Y, KC_SCLN, KC_MINS, 
 		KC_LSFT, KC_A, KC_R, KC_S, KC_T, KC_D, 												KC_H, KC_N, KC_E, KC_I, KC_O, KC_QUOT, 
-		VIM_ESC, KC_Z, KC_X, KC_C, KC_V, KC_B, 												KC_K, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_BSLS,
+		KC_LSFT, KC_Z, KC_X, KC_C, KC_V, KC_B, 												KC_K, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_BSLS,
 		KC_UP, KC_DOWN, 														KC_LEFT, KC_RGHT, 
 		LT(_SYMBOLS,KC_ENT), KC_SPC, 											LSFT_T(KC_BSPC), LT(_MEDIA,KC_ESC), 
-		KC_LALT, VIM_ESC, 														LT(_NUMBERS, KC_DEL), KC_LGUI, 
-		KC_LGUI, KC_LALT, 														KC_APP, KC_RALT),
+		KC_LALT, KC_LGUI, 														LT(_NUMBERS, KC_DEL), KC_LGUI, 
+		KC_LGUI, TG(_WINDOWS), 														KC_APP, KC_RALT),
+	[_WINDOWS] = LAYOUT_5x6(
+		_______, _______, _______, _______, _______, _______, 				_______, _______, _______, _______, _______, _______, 
+		_______, _______, _______, _______, _______, _______, 				_______, _______, _______, _______, _______, _______, 
+		_______, _______, _______, _______, _______, _______, 			_______, _______, _______, _______, _______, _______, 
+		_______, _______, _______, _______, _______, _______, 			_______, _______, _______, _______, _______, _______, 
+		_______, _______, 												_______, _______, 
+		_______, _______, 												_______, _______, 
+		_______, KC_LCTRL, 												_______, _______, 
+		_______, _______, 												_______, _______),
 	[_SYMBOLS] = LAYOUT_5x6(
 		KC_TILD, KC_EXLM, KC_AT, KC_HASH, KC_DLR, KC_PERC, 				KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_DEL, 
 		KC_GRV, _______, _______, KC_UP, _______, _______, 				_______, KC_LCBR, KC_RCBR, _______, KC_MINS, KC_EQL, 
@@ -150,21 +149,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		_______, _______, 																_______, _______, 
 		_______, _______, 															_______, _______, 
 		_______, _______, 																_______, _______),
-	[_VIM] = LAYOUT_5x6(
-		_______, _______, _______, _______, _______, _______, 				_______, _______, _______, _______, _______, _______, 
-		_______, _______, _______, _______, _______, _______, 				_______, _______, _______, _______, _______, _______, 
-		_______, _______, _______, _______, _______, _______, 				_______, _______, _______, _______, _______, _______, 
-		_______, _______, _______, _______, _______, _______, 				_______, _______, _______, _______, _______, _______, 
-		_______, _______, 												_______, _______, 
-		KC_I, KC_I, 												_______, KC_I, 
-		_______, KC_I, 												_______, _______, 
-		_______, _______, 												_______, _______),
 };
 
-// Light LEDs 6 to 9 and 12 to 15 red when caps lock is active. Hard to ignore!
-const rgblight_segment_t PROGMEM my_vim_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {0, 12, HSV_RED}       // Light 4 LEDs, starting with LED 6
-);
 // Light LEDs 9 & 10 in cyan when keyboard layer 1 is active
 const rgblight_segment_t PROGMEM my_layer1_layer[] = RGBLIGHT_LAYER_SEGMENTS(
     {0, 12, HSV_CYAN}
@@ -176,7 +162,6 @@ const rgblight_segment_t PROGMEM my_layer2_layer[] = RGBLIGHT_LAYER_SEGMENTS(
 
 // Now define the array of layers. Later layers take precedence
 const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
-    my_vim_layer,
     my_layer1_layer,    // Overrides caps lock layer
     my_layer2_layer     // Overrides other layers
 );
@@ -189,6 +174,5 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     // Both layers will light up if both kb layers are active
     // rgblight_set_layer_state(1, layer_state_cmp(state, 1));
     // rgblight_set_layer_state(2, layer_state_cmp(state, 2));
-    rgblight_set_layer_state(0, layer_state_cmp(state, _VIM));
     return state;
 }
